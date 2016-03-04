@@ -24,7 +24,7 @@ except ImportError:
 
 
 learning_rate=0.1
-training_epochs=15,
+training_epochs=15
 dataset='mnist.pkl.gz'
 batch_size=20
 output_folder='dA_plots'
@@ -46,8 +46,12 @@ This demo is tested on MNIST
 datasets = load_data(dataset)
 train_set_x, train_set_y = datasets[0]
 
+dir(train_set_x)
+
+print(dir(train_set_x))
+
 # compute number of minibatches for training, validation and testing
-n_train_batches = train_set_x.get_value(borrow=True).shape[0] // batch_size
+n_train_batches = train_set_x.get_value(borrow=True).shape[0]
 
 # start-snippet-2
 # allocate symbolic variables for the data

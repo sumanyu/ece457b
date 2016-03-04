@@ -245,3 +245,11 @@ class dA(object):
         ]
 
         return (cost, updates)
+
+    def get_prediction(self):
+        y = self.get_hidden_values(self.x)
+        z = self.get_reconstructed_input(y)
+        return z
+
+    def get_latent_representation(self):
+        return self.get_hidden_values(self.x)
