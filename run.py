@@ -46,10 +46,6 @@ This demo is tested on MNIST
 datasets = load_data(dataset)
 train_set_x, train_set_y = datasets[0]
 
-dir(train_set_x)
-
-print(dir(train_set_x))
-
 # compute number of minibatches for training, validation and testing
 n_train_batches = train_set_x.get_value(borrow=True).shape[0]
 
@@ -102,6 +98,7 @@ start_time = timeit.default_timer()
 for epoch in range(training_epochs):
     # go through trainng set
     c = []
+    print(c)
     for batch_index in range(n_train_batches):
         c.append(train_da(batch_index))
 
@@ -119,6 +116,9 @@ image = Image.fromarray(
                        img_shape=(28, 28), tile_shape=(10, 10),
                        tile_spacing=(1, 1)))
 image.save('filters_corruption_0.png')
+
+
+
 
 # start-snippet-3
 #####################################
