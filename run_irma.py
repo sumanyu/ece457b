@@ -13,8 +13,10 @@ import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 
 from da import dA
+import gzip
+import pickle
 
-from utils import load_data, tile_raster_images
+from utils import tile_raster_images
 
 try:
     import PIL.Image as Image
@@ -25,26 +27,20 @@ except ImportError:
 
 learning_rate=0.1
 training_epochs=15
-dataset='mnist.pkl.gz'
+dataset='file.pklz'
 batch_size=20
-output_folder='dA_plots'
+output_folder='irma_plots'
 
-"""
-This demo is tested on MNIST
+new_path = os.path.join(os.path.split(__file__)[0], "data", dataset)
 
-:type learning_rate: float
-:param learning_rate: learning rate used for training the DeNosing
-                      AutoEncoder
+with gzip.open(new_path, 'rb') as f:
+    train_set, test_set = pickle.load(f)
 
-:type training_epochs: int
-:param training_epochs: number of epochs used for training
+train_x, train_paths = train_set
+train_set_x = theano.shared(numpy.asarray(train_x, dtype=theano.config.floatX), borrow=True)
 
-:type dataset: string
-:param dataset: path to the picked dataset
-
-"""
-datasets = load_data(dataset)
-train_set_x, train_set_y = datasets[0]
+test_x, test_paths = train_set
+test_set_x = theano.shared(numpy.asarray(test_x, dtype=theano.config.floatX), borrow=True)
 
 # compute number of minibatches for training, validation and testing
 n_train_batches = train_set_x.get_value(borrow=True).shape[0]
@@ -70,8 +66,8 @@ da = dA(
     numpy_rng=rng,
     theano_rng=theano_rng,
     input=x,
-    n_visible=28 * 28,
-    n_hidden=500
+    n_visible=32 * 32,
+    n_hidden=32 * 32 / 2
 )
 
 cost, updates = da.get_cost_updates(
@@ -98,7 +94,6 @@ start_time = timeit.default_timer()
 for epoch in range(training_epochs):
     # go through trainng set
     c = []
-    print(c)
     for batch_index in range(n_train_batches):
         c.append(train_da(batch_index))
 
@@ -113,11 +108,22 @@ print(('The no corruption code for file ' +
        ' ran for %.2fm' % ((training_time) / 60.)), file=sys.stderr)
 image = Image.fromarray(
     tile_raster_images(X=da.W.get_value(borrow=True).T,
-                       img_shape=(28, 28), tile_shape=(10, 10),
+                       img_shape=(32, 32), tile_shape=(10, 10),
                        tile_spacing=(1, 1)))
 image.save('filters_corruption_0.png')
 
 
+# latent_rep = da.get_latent_representation()
+# print(latent_rep)
+# print(latent_rep.tag.test_value)
+
+
+def transform(X):
+    z = da.get_prediction()
+    predict_da = theano.function([x],z)
+    return predict_da(X)
+
+X_prime = transform(train_set_x)
 
 
 # start-snippet-3
@@ -132,8 +138,8 @@ da = dA(
     numpy_rng=rng,
     theano_rng=theano_rng,
     input=x,
-    n_visible=28 * 28,
-    n_hidden=500
+    n_visible=32 * 32,
+    n_hidden=32 * 32 / 2
 )
 
 cost, updates = da.get_cost_updates(
@@ -177,7 +183,7 @@ print(('The 30% corruption code for file ' +
 # # start-snippet-4
 image = Image.fromarray(tile_raster_images(
     X=da.W.get_value(borrow=True).T,
-    img_shape=(28, 28), tile_shape=(10, 10),
+    img_shape=(32, 32), tile_shape=(10, 10),
     tile_spacing=(1, 1)))
 image.save('filters_corruption_30.png')
 # # end-snippet-4

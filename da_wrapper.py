@@ -84,4 +84,3 @@ class DenoisingAutoencoder(BaseEstimator):
         predict_da = theano.function([self.x],h)
         return predict_da(X)
 
-
