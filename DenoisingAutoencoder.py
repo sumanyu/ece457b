@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 from sklearn.base import BaseEstimator
-from da import *
+from dA import *
 import numpy
 
 import theano

@@ -12,7 +12,7 @@ import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
 
-from da import dA
+from dA import dA
 
 from utils import load_data, tile_raster_images
 
