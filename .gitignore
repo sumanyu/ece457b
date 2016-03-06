@@ -4,4 +4,4 @@ irma_plots/*
 data/file.pklz
 run_irma.py
 test.py
-
+.DS_Store
