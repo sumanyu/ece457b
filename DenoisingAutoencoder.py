@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from sklearn.base import BaseEstimator
 from da import *
 import numpy
@@ -5,10 +7,13 @@ import numpy
 import theano
 import theano.tensor as T
 from theano.tensor.shared_randomstreams import RandomStreams
+import timeit
+import os
+import sys
 
 
 class DenoisingAutoencoder(BaseEstimator):
-    def __init__(self, n_hidden, learning_rate = 0.1, training_epochs = 20, corruption_level = 0.3, batch_size = 20, verbose=False):
+    def __init__(self, n_hidden, learning_rate=0.1, training_epochs=15, corruption_level=0.0, batch_size=20, verbose=False):
         self.n_visible = None
         self.n_hidden = n_hidden
         self.learning_rate = learning_rate
@@ -29,12 +34,13 @@ class DenoisingAutoencoder(BaseEstimator):
         return shared_x
 
     def fit(self,X):
+        start_time = timeit.default_timer()
         self.n_visible = X.shape[1]
 
         train_set_x = self.load_data(X)
 
         # compute number of minibatches for training, validation and testing
-        n_train_batches = train_set_x.get_value(borrow=True).shape[0] / self.batch_size
+        n_train_batches = train_set_x.get_value(borrow=True).shape[0]
 
         # allocate symbolic variables for the data
         index = T.lscalar()    # index to a [mini]batch
@@ -71,15 +77,20 @@ class DenoisingAutoencoder(BaseEstimator):
                 c.append(train_da(batch_index))
 
             if self.verbose:
-                print 'Training epoch %d, cost ' % epoch, numpy.mean(c)
+                print('Training epoch %d, cost ' % epoch, numpy.mean(c))
 
+        end_time = timeit.default_timer()
+        training_time = (end_time - start_time)
 
-    def transform(self,X):
+        print(("The %d%% corruption code " % (self.corruption_level*100) +
+               ' ran for %.2fm' % (training_time / 60.)), file=sys.stderr)
+
+    def transform(self, X):
         z = self.da.get_prediction()
-        predict_da = theano.function([self.x],z)
+        predict_da = theano.function([self.x], z)
         return predict_da(X)
 
-    def transform_latent_representation(self,X):
+    def transform_latent_representation(self, X):
         h = self.da.get_latent_representation()
         predict_da = theano.function([self.x],h)
         return predict_da(X)
