@@ -8,6 +8,8 @@ import numpy as np
 
 from sknn import ae, mlp
 
+# TODO: THIS WAS A WASTE OF TIME. BACKEND ISN'T IMPLEMENTED YET.. FFS
+
 mnist = fetch_mldata('mnist-original')
 X_train, X_test, y_train, y_test = train_test_split(
         (mnist.data / 255.0).astype(np.float32),
