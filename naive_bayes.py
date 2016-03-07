@@ -7,6 +7,7 @@ import random
 from sklearn.cross_validation import train_test_split
 from sklearn.naive_bayes import MultinomialNB
 
+
 clf = MultinomialNB()
 
 custom_data_home = os.path.join(os.path.split(__file__)[0],"data")
