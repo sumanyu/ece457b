@@ -1,16 +1,8 @@
 __author__ = 'vps'
 
+import timeit
 
 from sklearn.base import BaseEstimator
-from dA import *
-import numpy
-
-import theano
-import theano.tensor as T
-from theano.tensor.shared_randomstreams import RandomStreams
-import timeit
-import os
-import sys
 from DenoisingAutoencoder import DenoisingAutoencoder
 
 
