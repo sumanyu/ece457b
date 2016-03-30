@@ -82,8 +82,8 @@ class DenoisingAutoencoder(BaseEstimator):
         end_time = timeit.default_timer()
         training_time = (end_time - start_time)
 
-        print(("The %d%% corruption code " % (self.corruption_level*100) +
-               ' ran for %.2fm' % (training_time / 60.)), file=sys.stderr)
+        #print(("The %d%% corruption code " % (self.corruption_level*100) +
+        #       ' ran for %.2fm' % (training_time / 60.)), file=sys.stderr)
 
     def transform(self, X):
         z = self.da.get_prediction()

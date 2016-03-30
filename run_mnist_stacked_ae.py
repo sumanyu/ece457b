@@ -1,5 +1,5 @@
 import os
-
+import csv
 from sklearn.datasets import fetch_mldata
 from sklearn.cross_validation import train_test_split
 from sklearn.naive_bayes import MultinomialNB
@@ -18,24 +18,42 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.25, random_state=42)
 
 # Stacked AE test
-
-stacked_ae = StackedDenoisingAutoencoders(hidden_layers_sizes=[400, 200], verbose=True, training_epochs=5)
-stacked_ae.fit(X_train)
-
-X_train_latent = stacked_ae.transform_latent_representation(X_train)
-X_test_latent = stacked_ae.transform_latent_representation(X_test)
-
-clf = MultinomialNB()
-
-# Fit the model
-clf.fit(X_train_latent, y_train)
-
-# Perform the predictions
-y_predicted = clf.predict(X_test_latent)
+hidden_layer_one = [200,300,400]
+hidden_layer_two = [50 ,100,150,200]
+num_epochs = [1,2,3,4,5,6,7]
+num_noise = [0.1, 0.2, 0.3,0.4]
 
 
-from sklearn.metrics import accuracy_score
-print "Accuracy = {} %".format(accuracy_score(y_test, y_predicted)*100)
 
-from sklearn.metrics import classification_report
-print "Classification Report \n {}".format(classification_report(y_test, y_predicted, labels=range(0,10)))
+for epoch in num_epochs:
+    for h_one in hidden_layer_one:
+        for h_two in (x for x in hidden_layer_two if x < h_one):
+            for noise_level in num_noise:
+
+                print "EPOCHS: %d " % epoch
+                print "LAYER_1: %d " % h_one
+                print "LAYER_2: %d " % h_two
+                stacked_ae = StackedDenoisingAutoencoders(hidden_layers_sizes=[h_one, h_two], corruption_level=noise_level,verbose=True, training_epochs=epoch)
+                stacked_ae.fit(X_train)
+                
+                X_train_latent = stacked_ae.transform_latent_representation(X_train)
+                X_test_latent = stacked_ae.transform_latent_representation(X_test)
+                
+                clf = MultinomialNB()
+                
+                # Fit the model
+                clf.fit(X_train_latent, y_train)
+                
+                # Perform the predictions
+                y_predicted = clf.predict(X_test_latent)
+                
+                
+                from sklearn.metrics import accuracy_score
+                print "Accuracy = {} %".format(accuracy_score(y_test, y_predicted)*100)
+                
+                from sklearn.metrics import classification_report
+                print "Classification Report \n {}".format(classification_report(y_test, y_predicted, labels=range(0,10)))
+            
+                with open('stackedNoiseAEs.csv', 'a') as csvfile:
+                    outputFile = csv.writer(csvfile, delimiter=',')
+                    outputFile.writerow([epoch, h_one, h_two, noise_level, accuracy_score(y_test, y_predicted)*100])
